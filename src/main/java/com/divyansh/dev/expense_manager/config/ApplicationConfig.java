@@ -1,5 +1,8 @@
 package com.divyansh.dev.expense_manager.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -18,8 +21,11 @@ import javax.sql.DataSource;
 @EnableTransactionManagement
 class ApplicationConfig {
 
+    @Autowired
+    private DataSource dataSource;
     @Bean
     public DataSource dataSource(){
+        System.out.println("datasource");
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("com.mysql.jdbc.Driver");
         dataSource.setUrl("jdbc:mysql://localhost:3306/spring");
@@ -29,13 +35,14 @@ class ApplicationConfig {
     }
 
     @Bean
+    @ConditionalOnBean(DataSource.class)
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-
+        System.out.println("em");
         JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         LocalContainerEntityManagerFactoryBean entityManager = new LocalContainerEntityManagerFactoryBean();
         entityManager.setJpaVendorAdapter(vendorAdapter);
         entityManager.setPackagesToScan("com.divyansh.dev.expense_manager");
-        entityManager.setDataSource(dataSource());
+        entityManager.setDataSource(dataSource);
         return entityManager;
     }
 
